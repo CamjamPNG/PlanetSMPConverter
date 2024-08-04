@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft Currency Converter</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .container {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            max-width: 500px;
+            width: 100%;
+        }
+        .converter label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+        }
+        .converter select, .converter input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .converter button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .converter button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Minecraft Currency Converter</h1>
+        <div class="converter">
+            <label for="from-currency">From Currency:</label>
+            <select id="from-currency">
+                <option value="diamond">Diamond</option>
+                <option value="gold">Gold Ingot</option>
+                <option value="emerald">Emerald</option>
+                <option value="iron">Iron Ingot</option>
+                <option value="redstone">Redstone</option>
+                <option value="coal">Coal</option>
+                <option value="lapis">Lapis Lazuli</option>
+                <option value="netherite">Netherite Ingot</option>
+            </select>
+
+            <label for="amount">Amount:</label>
+            <input type="number" id="amount" value="1" min="0" step="any">
+
+            <label for="to-currency">To Currency:</label>
+            <select id="to-currency">
+                <option value="diamond">Diamond</option>
+                <option value="gold">Gold Ingot</option>
+                <option value="emerald">Emerald</option>
+                <option value="iron">Iron Ingot</option>
+                <option value="redstone">Redstone</option>
+                <option value="coal">Coal</option>
+                <option value="lapis">Lapis Lazuli</option>
+                <option value="netherite">Netherite Ingot</option>
+            </select>
+
+            <button onclick="convert()">Convert</button>
+
+            <div class="result" id="result"></div>
+        </div>
+    </div>
+
+    <script>
+        const rates = {
+            diamond: { gold: 10, emerald: 5, iron: 20, redstone: 50, coal: 100, lapis: 8, netherite: 0.1 },
+            gold: { diamond: 0.1, emerald: 0.05, iron: 2, redstone: 5, coal: 10, lapis: 0.8, netherite: 0.01 },
+            emerald: { diamond: 0.2, gold: 20, iron: 4, redstone: 10, coal: 20, lapis: 1.6, netherite: 0.02 },
+            iron: { diamond: 0.05, gold: 0.5, emerald: 0.25, redstone: 2.5, coal: 5, lapis: 0.4, netherite: 0.005 },
+            redstone: { diamond: 0.02, gold: 0.2, emerald: 0.1, iron: 0.4, coal: 1, lapis: 0.08, netherite: 0.002 },
+            coal: { diamond: 0.01, gold: 0.1, emerald: 0.05, iron: 0.2, redstone: 0.5, lapis: 0.04, netherite: 0.001 },
+            lapis: { diamond: 0.125, gold: 1.25, emerald: 0.625, iron: 2.5, redstone: 12.5, coal: 25, netherite: 0.0125 },
+            netherite: { diamond: 10, gold: 100, emerald: 50, iron: 200, redstone: 500, coal: 1000, lapis: 80 }
+        };
+
+        function convert() {
+            const fromCurrency = document.getElementById('from-currency').value;
+            const toCurrency = document.getElementById('to-currency').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const rate = rates[fromCurrency][toCurrency];
+
+            if (rate === undefined) {
+                document.getElementById('result').innerText = 'Conversion rate not available.';
+                return;
+            }
+
+            const result = amount * rate;
+            document.getElementById('result').innerText = `${amount} ${capitalizeFirstLetter(fromCurrency)} is equal to ${result.toFixed(2)} ${capitalizeFirstLetter(toCurrency)}.`;
+        }
+
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+    </script>
+</body>
+</html>
