@@ -9,14 +9,21 @@
             font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f9;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .light-mode {
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        .dark-mode {
+            background-color: #2c2c2c;
+            color: #f4f4f9;
         }
         h1 {
-            color: #333;
             margin-bottom: 20px;
         }
         .container {
@@ -24,13 +31,34 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             padding: 20px;
-            max-width: 500px;
+            max-width: 700px;
             width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            transition: background-color 0.3s;
+            position: relative;
+        }
+        .dark-mode .container {
+            background: #3a3a3a;
+        }
+        .converter, .other-trades {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .dark-mode .converter, .dark-mode .other-trades {
+            background: #424242;
         }
         .converter label {
             display: block;
             margin-bottom: 8px;
             color: #555;
+        }
+        .dark-mode .converter label {
+            color: #ddd;
         }
         .converter select, .converter input {
             width: calc(100% - 20px);
@@ -40,6 +68,12 @@
             border-radius: 4px;
             font-size: 16px;
             box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+        .dark-mode .converter select, .dark-mode .converter input {
+            border-color: #555;
+            background-color: #333;
+            color: #ddd;
         }
         .converter button {
             width: 100%;
@@ -52,23 +86,75 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
+        .dark-mode .converter button {
+            background-color: #0056b3;
+        }
         .converter button:hover {
             background-color: #0056b3;
         }
         .result {
             margin-top: 20px;
             font-size: 18px;
-            color: #333;
             text-align: center;
+        }
+        .other-trades h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .other-trades ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .other-trades li {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        .dark-mode .other-trades li {
+            color: #ddd;
+        }
+        .theme-switcher {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .theme-switcher label {
+            color: #555;
+        }
+        .dark-mode .theme-switcher label {
+            color: #ddd;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        .footer a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .dark-mode .footer a {
+            color: #1e90ff;
+        }
+        .footer a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
-<body>
+<body class="dark-mode">
+    <div class="theme-switcher">
+        <label for="theme-toggle">Dark Mode:</label>
+        <input type="checkbox" id="theme-toggle" checked>
+    </div>
+
     <div class="container">
-        <h1>Minecraft Currency Converter</h1>
         <div class="converter">
+            <h1>Minecraft Currency Converter</h1>
             <label for="from-currency">From Currency:</label>
-            <select id="from-currency">
+            <select id="from-currency" onchange="updateOtherTrades()">
                 <option value="diamond">Diamond</option>
                 <option value="gold">Gold Ingot</option>
                 <option value="emerald">Emerald</option>
@@ -98,18 +184,29 @@
 
             <div class="result" id="result"></div>
         </div>
+
+        <div class="other-trades">
+            <h2>Other Trades for <span id="current-currency">Diamond</span>:</h2>
+            <ul id="trades-list">
+                <!-- Trades will be dynamically inserted here -->
+            </ul>
+        </div>
+
+        <div class="footer">
+            <a href="https://github.com/CamjamPNG/PlanetSMPConverter" target="_blank">Open Source at GitHub</a>
+        </div>
     </div>
 
     <script>
         const rates = {
-            diamond: { gold: 10, emerald: 5, iron: 20, redstone: 50, coal: 100, lapis: 8, netherite: 0.1 },
-            gold: { diamond: 0.1, emerald: 0.05, iron: 2, redstone: 5, coal: 10, lapis: 0.8, netherite: 0.01 },
-            emerald: { diamond: 0.2, gold: 20, iron: 4, redstone: 10, coal: 20, lapis: 1.6, netherite: 0.02 },
-            iron: { diamond: 0.05, gold: 0.5, emerald: 0.25, redstone: 2.5, coal: 5, lapis: 0.4, netherite: 0.005 },
-            redstone: { diamond: 0.02, gold: 0.2, emerald: 0.1, iron: 0.4, coal: 1, lapis: 0.08, netherite: 0.002 },
-            coal: { diamond: 0.01, gold: 0.1, emerald: 0.05, iron: 0.2, redstone: 0.5, lapis: 0.04, netherite: 0.001 },
-            lapis: { diamond: 0.125, gold: 1.25, emerald: 0.625, iron: 2.5, redstone: 12.5, coal: 25, netherite: 0.0125 },
-            netherite: { diamond: 10, gold: 100, emerald: 50, iron: 200, redstone: 500, coal: 1000, lapis: 80 }
+            diamond: { gold: 10, emerald: 50, iron: 5, redstone: 25, coal: 12.5, lapis: 20, netherite: 0.1 },
+            gold: { diamond: 0.1, emerald: 5, iron: 0.5, redstone: 2.5, coal: 1.25, lapis: 2, netherite: 0.01 },
+            emerald: { diamond: 0.02, gold: 0.2, iron: 0.1, redstone: 0.05, coal: 0.025, lapis: 0.04, netherite: 0.004 },
+            iron: { diamond: 0.2, gold: 2, emerald: 10, redstone: 5, coal: 2.5, lapis: 4, netherite: 0.02 },
+            redstone: { diamond: 0.04, gold: 0.4, emerald: 2, iron: 0.2, coal: 0.1, lapis: 0.16, netherite: 0.005 },
+            coal: { diamond: 0.08, gold: 0.8, emerald: 4, iron: 0.4, redstone: 10, lapis: 0.32, netherite: 0.002 },
+            lapis: { diamond: 0.05, gold: 0.5, emerald: 2.5, iron: 0.25, redstone: 6.25, coal: 0.04, netherite: 0.01 },
+            netherite: { diamond: 10, gold: 100, emerald: 250, iron: 50, redstone: 200, coal: 500, lapis: 100 }
         };
 
         function convert() {
@@ -125,11 +222,43 @@
 
             const result = amount * rate;
             document.getElementById('result').innerText = `${amount} ${capitalizeFirstLetter(fromCurrency)} is equal to ${result.toFixed(2)} ${capitalizeFirstLetter(toCurrency)}.`;
+
+            // Update the other trades section based on the amount
+            updateOtherTrades();
+        }
+
+        function updateOtherTrades() {
+            const fromCurrency = document.getElementById('from-currency').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const tradesList = document.getElementById('trades-list');
+            tradesList.innerHTML = '';
+
+            for (const [currency, rate] of Object.entries(rates[fromCurrency])) {
+                const listItem = document.createElement('li');
+                const tradeAmount = amount * rate;
+                listItem.textContent = `${amount} ${capitalizeFirstLetter(fromCurrency)} = ${tradeAmount.toFixed(2)} ${capitalizeFirstLetter(currency)}`;
+                tradesList.appendChild(listItem);
+            }
+
+            document.getElementById('current-currency').textContent = capitalizeFirstLetter(fromCurrency);
         }
 
         function capitalizeFirstLetter(string) {
             return string.charAt(0).toUpperCase() + string.slice(1);
         }
+
+        // Initialize other trades on page load
+        updateOtherTrades();
+
+        // Theme switcher functionality
+        const themeToggle = document.getElementById('theme-toggle');
+        themeToggle.addEventListener('change', () => {
+            if (themeToggle.checked) {
+                document.body.classList.replace('light-mode', 'dark-mode');
+            } else {
+                document.body.classList.replace('dark-mode', 'light-mode');
+            }
+        });
     </script>
 </body>
 </html>
